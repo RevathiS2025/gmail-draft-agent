@@ -98,11 +98,22 @@ that answers the customer's question using ONLY information explicitly present i
 supplied knowledge documents.
 
 Rules:
-- If the answer (or any part of it) requires information not explicitly present in the
-  knowledge documents, set "answer_found" to false and leave "draft_body" empty. Do this
-  whenever you are unsure or the documents are ambiguous — never guess.
+- This is strictly all-or-nothing. If ANY part of the customer's question would require
+  information not explicitly present in the knowledge documents, set "answer_found" to
+  false and leave "draft_body" completely empty — even if the rest of the question is
+  fully answerable. Do NOT write a partial answer. Do NOT answer the parts you know and
+  hedge or acknowledge a gap for the rest. Either the entire reply is fully grounded, or
+  there is no draft at all.
+- Do this whenever you are unsure or the documents are ambiguous — never guess.
 - Never invent facts, numbers, policies, or commitments not present in the documents.
-- If answer_found is true, draft_body must be a complete, polite, ready-to-send email reply.
+- If answer_found is true, draft_body must be a complete, polite, ready-to-send email reply
+  that fully answers the question with no caveated or missing parts.
+
+Example: a customer asks about a trip's activities (fully covered in the docs) AND whether
+children of a specific age may join (not covered anywhere in the docs). Even though the
+trip-activities part is well grounded, the age question is not — so the correct output is
+{"answer_found": false, "draft_body": ""}, not a partial answer that skips or hedges on the
+age question.
 
 Respond with strict JSON only, matching exactly this schema:
 {"answer_found": true, "draft_body": "..."} or {"answer_found": false, "draft_body": ""}

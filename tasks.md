@@ -104,18 +104,19 @@ Stack assumption: Python (google-api-python-client, google-auth, pypdf, python-d
 *Depends on: Phase 6.*
 
 - [x] 7.1 Write `.github/workflows/agent.yml`: hourly `cron` trigger (`0 * * * *`) + manual `workflow_dispatch`
-- [ ] 7.2 **User action:** create the GitHub repo, push this code, then add repo Secrets: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GROQ_API_KEY`, `DRIVE_FOLDER_ID` (Settings → Secrets and variables → Actions) — no GitHub remote exists yet, so this can't be done from here
+- [x] 7.2 Created private repo [RevathiS2025/gmail-draft-agent](https://github.com/RevathiS2025/gmail-draft-agent), pushed initial commit, and set all 5 repo Secrets (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GROQ_API_KEY`, `DRIVE_FOLDER_ID`) via `gh secret set`
 - [x] 7.3 Persist knowledge cache across runs: workflow commits `cache/knowledge_cache.json` back to the repo after each run if it changed (requires `permissions: contents: write`, included)
 - [x] 7.4 Add workflow-level safeguards: per-run cap already enforced in code (Phase 3); added `timeout-minutes: 10` at the job level
-- [ ] 7.5 **User action (after 7.2):** trigger the workflow via `workflow_dispatch` on GitHub, confirm it runs, and confirm cache commit behavior
+- [x] 7.5 Triggered via `workflow_dispatch` on GitHub Actions — [run succeeded](https://github.com/RevathiS2025/gmail-draft-agent/actions/runs/28704509868): secrets resolved, Gmail/Drive auth succeeded, knowledge cache loaded (2 docs), summary `{'fetched': 0, ...}` (correct — no new unlabeled mail since the Phase 6 test). Note: had to push a second trivial commit before GitHub registered the workflow — the first `gh repo create --push` did not trigger indexing on its own
 
 ---
 
 ## Phase 8 — Verification & Hardening
 *Depends on: Phase 7.*
 
-- [ ] 8.1 Code review: confirm no send-capable Gmail API call exists anywhere in the codebase
-- [ ] 8.2 Manual QA: sample real emails, confirm drafts trace only to knowledge-doc content
-- [ ] 8.3 Manual QA: run workflow twice back-to-back, confirm zero duplicate drafts
-- [ ] 8.4 Manual QA: send a genuine out-of-scope question, confirm `Needs-Human` labeling with no draft
-- [ ] 8.5 Write `README.md`: OAuth consent-screen publishing step, secrets setup, how to add/update knowledge docs in Drive
+- [x] 8.1 Code review: confirmed zero `.send(` calls anywhere in `src/` or `main.py` — no send capability exists in the codebase
+- [x] 8.2 Manual QA: real grounded email produced a correct doc-sourced draft (Phase 6); stress-tested a partial-knowledge edge case (VAN of Love trip + unstated child-age policy) which surfaced a real product-policy gap — see 8.2b
+- [x] 8.2b **Finding + fix:** the drafting model was answering partial-knowledge questions with a hedged partial draft ("here's what I know, contact the team for the rest"), which conflicts with PRD Section 6's literal "any missing info → answer_found=false" rule. Asked the user to confirm the intended policy — chose **strict all-or-nothing**. Rewrote `DRAFTING_SYSTEM_PROMPT` in `src/llm.py` with an explicit all-or-nothing rule + worked example. Re-verified 3/3 correct on the partial case, plus fully-grounded and fully-ungrounded cases unaffected. Full suite still 48 passing
+- [x] 8.3 Manual QA (live): simulated the PRD's stated crash scenario (draft created, label never applied) on the real test thread — re-running the pipeline correctly produced 0 candidates (thread-has-draft guard caught it) and draft count stayed at 2 (no duplicate). Confirms PRD Section 7 idempotency guarantee holds even without the label
+- [x] 8.4 Live QA: user sent a real out-of-scope test email ("FCRA number" — requesting FCRA registration/CSR-1 details). Full live pipeline run produced `{'fetched': 1, 'triaged_out': 0, 'drafted': 0, 'needs_human': 1, 'errored': 0}`; confirmed `Needs-Human` label applied to the message and no draft created on that thread
+- [x] 8.5 Write `README.md`: OAuth consent-screen publishing step, secrets setup, how to add/update knowledge docs in Drive
