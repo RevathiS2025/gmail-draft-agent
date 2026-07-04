@@ -25,7 +25,7 @@ Stack assumption: Python (google-api-python-client, google-auth, pypdf, python-d
 - [x] 1.2 Implement `src/auth.py`: build `Credentials` object from stored refresh token + client id/secret (no interactive flow)
 - [x] 1.3 Implement Gmail API client builder (`gmail.modify` scope)
 - [x] 1.4 Implement Drive API client builder (`drive.readonly` scope)
-- [x] 1.5 Smoke test: authenticate and successfully call `users.getProfile` (Gmail) and `files.list` (Drive) with 1 result each — confirmed live against `revathiarjuntnpsc@gmail.com` (see note below if this is the wrong account)
+- [x] 1.5 Smoke test: authenticate and successfully call `users.getProfile` (Gmail) and `files.list` (Drive) with 1 result each — confirmed live against the monitored account (see note below if this is the wrong account)
 
 ---
 
