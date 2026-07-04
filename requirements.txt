@@ -1,0 +1,8 @@
+google-api-python-client
+google-auth
+google-auth-oauthlib
+pypdf
+python-docx
+groq
+tenacity
+python-dotenv
