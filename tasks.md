@@ -111,6 +111,13 @@ Stack assumption: Python (google-api-python-client, google-auth, pypdf, python-d
 
 ---
 
+## Phase 9 — Failure Alerting (added post-launch, user request)
+*Depends on: Phase 7.*
+
+- [x] 9.1 Add GitHub Issue-based failure alerting to `.github/workflows/agent.yml`: opens/comments on an `agent-failure`-labeled Issue when a scheduled run fails; auto-closes it on the next successful run. Uses default `GITHUB_TOKEN` only — no new secrets, and keeps the "zero send-capable code" guarantee intact since it's pure CI plumbing, not agent code
+- [x] 9.2 **Bug found & fixed during live testing:** per-email errors were correctly isolated by the orchestrator (logged, counted in `summary['errored']`) but `main.py` always exited 0, so a real Groq/API failure during email processing would never surface as a failed CI step — meaning the new alert would never fire for the most likely real-world failure mode. Fixed: `main.py` now exits 1 if `summary["errored"] > 0`. Added 2 unit tests (full suite now 50 passing)
+- [x] 9.3 Live end-to-end verification: temporarily set an invalid `GROQ_API_KEY`, forced a real candidate email through the pipeline — confirmed the run failed correctly (exit 1) and [Issue #1](https://github.com/RevathiS2025/gmail-draft-agent/issues/1) was auto-created with a link to the failed run. Restored the correct key, re-ran, confirmed the run succeeded and the Issue was auto-closed with a resolution comment
+
 ## Phase 8 — Verification & Hardening
 *Depends on: Phase 7.*
 
